@@ -1,0 +1,135 @@
+	<?xml version="1.0" encoding="UTF-8" ?>
+	<!DOCTYPE html>
+	<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr" dir="ltr">
+	<head>
+		<title>Flamme</title>
+	</head>
+	<style type="text/css">
+	canvas {
+		position: relative;
+		border: 1px 
+		solid black;
+		left:300px;
+		top:155px;
+	}
+	#conteneur{
+		background: url("cheminee.jpg") no-repeat;
+		background-size: 900px auto;
+		height:600px;
+	}
+</style>
+<div id="conteneur">  
+	<canvas id="cadre" width="300" height="300"></canvas>
+</div>
+<input type="button" id="effet" value="on/off">
+
+<select id="brule">
+	<option value="flamme">flamme</option> 
+	<option value="papier" selected>papier</option>
+	<option value="b&ucirc;che">b&ucirc;che</option>
+	<option value="brochette">brochette</option>
+</select>
+<script>
+	//////////////////////////////////////////////////
+	/// projet effet de flamme
+	/// auteur stéphane
+
+
+	var canvas = document.getElementById('cadre');
+	var ctx = canvas.getContext('2d');
+
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+	var demarre = false;
+	var rafID;
+	var cancelAnimationFrame = window.cancelAnimationFrame;
+
+	var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+	var data = imageData.data;
+
+	var alea = function(){
+
+		return Math.round(Math.random()*298)+1;
+
+	};
+
+	//cette fonction arrete ou démarre l'effet de flamme via l'appui du bouton on/off
+	var action = function(){
+
+		if(demarre==false){
+
+			demarre = true;
+			flamme();
+
+		}
+		else{
+
+			window.cancelAnimationFrame(rafID);
+			ctx.fillStyle = "black";
+	        	ctx.fillRect(0,0,300,300); // effacer le canvas
+
+	        	demarre = false;
+	        	
+	        }
+
+	    };
+	    
+    //l'effet de flamme
+    var flamme = function(){
+
+    	for(var i=1; i < 5 ; i++){
+		    //ctx.fillStyle = "rgb( "+Math.round(Math.random()*255)+",  "+Math.round(Math.random()*255)+",  "+Math.round(Math.random()*255)+")";
+		    ctx.fillStyle = "rgb( 255,  255,  255)";
+		    //ctx.fillText("flamme",10,260);
+		    ctx.fillRect(alea(),270,10,10);
+		    ctx.fillRect(alea(),280,10,10);
+		    ctx.fillStyle = "rgb( 255,  0,  100)";
+		    ctx.fillRect(alea(),290,10,10);
+		}
+
+		imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+		data = imageData.data;
+
+		for(var i=1200;i<data.length-1200;i+=4){
+
+		    var red    =  data[i+1200-4]+data[i+1200]+data[i+1200+4]+data[i+2*(1200)];     // red
+		    var green = data[i+1200-4+1]+data[i+1200+1]+data[i+1200+4+1]+data[i+2*(1200)+1]; // green
+		    var blue = data[i+1200-4+2]+data[i+1200+2]+data[i+1200+4+2]+data[i+2*(1200)+2];  // blue
+
+
+		    if (red > 2) {red -= 2;} else {red = 0;}
+		    if (green > 5) green -= 5; else green = 0;
+		    if (blue > 150) blue -= 150; else blue = 0;
+
+		    data[i]   = Math.round(red/4);
+		    data[i + 1] = Math.round(green/4);
+		    data[i + 2] = Math.round(blue/4);
+		}
+
+		ctx.putImageData(imageData, 0, 0);
+		rafID = window.requestAnimationFrame(flamme);
+
+	};
+
+
+	var brule = function(){
+		var mot = this.options[this.selectedIndex].value;
+		ctx.font="bolder 80px Arial";
+		ctx.fillStyle = "rgb( 255,  255,  255)";
+		ctx.fillText(mot,10,260);
+	};
+
+	var btnEffet = document.getElementById("effet");
+
+	btnEffet.addEventListener("click",action);
+
+	var btnBrule = document.getElementById("brule");
+
+	btnBrule.addEventListener("click",brule)
+
+
+</script>
+</html>
